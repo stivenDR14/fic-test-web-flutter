@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../config/router/app_router.dart';
-import 'app_bottom_navigation.dart';
+import 'app_responsive_navigation.dart';
 
-// General layout that contains bottom navigator and content area
+// General layout that adapts navigation based on screen size
 class AppLayout extends StatelessWidget {
   final Widget child;
   final AppRoute currentRoute;
@@ -11,22 +11,42 @@ class AppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(child: child),
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: _getIndexFromRoute(currentRoute),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Mobile layout: bottom navigation
+        if (constraints.maxWidth < 768) {
+          return _buildMobileLayout();
+        }
+        // Desktop/Tablet layout: header navigation
+        else {
+          return _buildDesktopLayout();
+        }
+      },
     );
   }
 
-  int _getIndexFromRoute(AppRoute route) {
-    switch (route) {
-      case AppRoute.main:
-        return 0;
-      case AppRoute.subscribe:
-        return 1;
-      case AppRoute.history:
-        return 2;
-    }
+  Widget _buildMobileLayout() {
+    return Scaffold(
+      body: SafeArea(child: child),
+      bottomNavigationBar: AppResponsiveNavigation(currentRoute: currentRoute),
+    );
+  }
+
+  Widget _buildDesktopLayout() {
+    return Scaffold(
+      body: Column(
+        children: [
+          // Header navigation
+          AppResponsiveNavigation(currentRoute: currentRoute),
+          // Content area
+          Expanded(
+            child: SafeArea(
+              top: false, // Header already provides top spacing
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
