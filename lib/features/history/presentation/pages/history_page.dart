@@ -66,14 +66,17 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   Widget _buildFilterChips() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          _buildFilterChip('Todas', null),
-          const SizedBox(width: 12),
-          _buildFilterChip('Suscripciones', TransactionType.subscription),
-          const SizedBox(width: 12),
-          _buildFilterChip('Cancelaciones', TransactionType.cancellation),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildFilterChip('Todas', null),
+            const SizedBox(width: 12),
+            _buildFilterChip('Suscripciones', TransactionType.subscription),
+            const SizedBox(width: 12),
+            _buildFilterChip('Cancelaciones', TransactionType.cancellation),
+          ],
+        ),
       ),
     );
   }
@@ -141,84 +144,111 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     final color = isSubscription ? Colors.green : Colors.red;
     final amountPrefix = isSubscription ? '+' : '-';
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 20),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate horizontal padding for desktop
+        final horizontalPadding =
+            constraints.maxWidth >= 768 ? constraints.maxWidth * 0.1 : 0.0;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
                 children: [
-                  Text(
-                    AppHelpers.formatFundName(transaction.fundName),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppHelpers.formatFundName(transaction.fundName),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        constraints.maxWidth >= 768
+                            ? Row(
+                              children: [
+                                Text(
+                                  isSubscription
+                                      ? 'Suscripción'
+                                      : 'Cancelación',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  ' • ${transaction.notificationMethod.name.toUpperCase()}',
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            )
+                            : Column(
+                              children: [
+                                Text(
+                                  isSubscription
+                                      ? 'Suscripción'
+                                      : 'Cancelación',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  ' • ${transaction.notificationMethod.name.toUpperCase()}',
+                                  style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppHelpers.formatDate(transaction.createdAt),
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        isSubscription ? 'Suscripción' : 'Cancelación',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                      Text(
-                        ' • ${transaction.notificationMethod.name.toUpperCase()}',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
                   Text(
-                    _formatDate(transaction.createdAt),
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    '$amountPrefix COP \$${transaction.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                 ],
               ),
             ),
-            Text(
-              '$amountPrefix COP \$${transaction.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      if (difference.inHours == 0) {
-        return '${difference.inMinutes} min ago';
-      }
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays == 1) {
-      return 'Ayer';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays} días';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
   }
 }

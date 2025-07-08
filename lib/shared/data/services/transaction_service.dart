@@ -1,5 +1,5 @@
-import 'dart:convert';
 import '../../domain/entities/transaction.dart';
+import '../../../core/utils/web_storage.dart';
 
 // Service to manage transactions in localStorage (web-compatible)
 class TransactionService {
@@ -8,21 +8,14 @@ class TransactionService {
   // Get all transactions from localStorage
   Future<List<Transaction>> getTransactions() async {
     try {
-      // Check if we're on web platform
-      if (_isWeb()) {
-        final storage = await _getWebStorage();
-        final jsonString = storage[_storageKey];
-
-        if (jsonString == null) return [];
-
-        final List<dynamic> jsonList = json.decode(jsonString);
-        return jsonList.map((json) => Transaction.fromJson(json)).toList()
-          ..sort(
-            (a, b) => b.createdAt.compareTo(a.createdAt),
-          ); // Most recent first
-      } else {
-        return [];
-      }
+      final jsonList = WebStorage.getItem<List<dynamic>>(
+        _storageKey,
+        (json) => json as List<dynamic>,
+      );
+      if (jsonList == null) return [];
+      return jsonList.map((json) => Transaction.fromJson(json)).toList()..sort(
+        (a, b) => b.createdAt.compareTo(a.createdAt),
+      ); // Most recent first
     } catch (e) {
       return [];
     }
@@ -31,47 +24,22 @@ class TransactionService {
   // Save transaction to localStorage
   Future<void> saveTransaction(Transaction transaction) async {
     try {
-      if (_isWeb()) {
-        final transactions = await getTransactions();
-        transactions.insert(0, transaction); // Add to beginning
-
-        final jsonList = transactions.map((t) => t.toJson()).toList();
-        final storage = await _getWebStorage();
-        storage[_storageKey] = json.encode(jsonList);
-      }
-      // For non-web platforms, do nothing
+      final transactions = await getTransactions();
+      transactions.insert(0, transaction); // Add to beginning
+      final jsonList = transactions.map((t) => t.toJson()).toList();
+      WebStorage.setItem(_storageKey, jsonList);
     } catch (e) {
       throw Exception('Failed to save transaction: $e');
     }
   }
 
-  // Clear all transactions (for testing)
-  Future<void> clearTransactions() async {
-    if (_isWeb()) {
-      final storage = await _getWebStorage();
-      storage.remove(_storageKey);
-    }
-  }
+  // Clear all transactions
+  /* Future<void> clearTransactions() async {
+    WebStorage.removeItem(_storageKey);
+  } */
 
   // Generate unique transaction ID
   String generateTransactionId() {
     return 'txn_${DateTime.now().millisecondsSinceEpoch}';
-  }
-
-  // Check if running on web platform
-  bool _isWeb() {
-    try {
-      // This will throw on non-web platforms
-      return identical(0, 0.0) == false; // Always false, but checks web context
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Get web localStorage dynamically
-  Future<Map<String, String?>> _getWebStorage() async {
-    // This is a simplified mock for testing
-    // In real web environment, this would use html.window.localStorage
-    return <String, String?>{};
   }
 }

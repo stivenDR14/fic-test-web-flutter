@@ -33,40 +33,53 @@ class FundsCards extends ConsumerWidget {
     final isInvested = balance.isInvestedIn(fund.id.toString());
     final investedAmount = balance.getInvestmentAmount(fund.id.toString());
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              AppColors.background,
-              AppColors.background.withOpacity(0.8),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate horizontal padding for desktop
+        final horizontalPadding =
+            constraints.maxWidth >= 768 ? constraints.maxWidth * 0.1 : 0.0;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.background,
+                    AppColors.background.withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildCardHeader(context, fund),
+                    const SizedBox(height: 16),
+                    _buildFundDetails(context, fund),
+                    if (isInvested) ...[
+                      const SizedBox(height: 16),
+                      _buildInvestmentInfo(context, ref, investedAmount),
+                    ],
+                    const SizedBox(height: 20),
+                    _buildActionButtons(context, ref, fund, isInvested),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCardHeader(context, fund),
-              const SizedBox(height: 16),
-              _buildFundDetails(context, fund),
-              if (isInvested) ...[
-                const SizedBox(height: 16),
-                _buildInvestmentInfo(context, ref, investedAmount),
-              ],
-              const SizedBox(height: 20),
-              _buildActionButtons(context, ref, fund, isInvested),
-            ],
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -108,7 +121,7 @@ class FundsCards extends ConsumerWidget {
         const SizedBox(height: 12),
         _buildDetailRow(
           'Monto Mínimo',
-          'COP \$${fund.montoMinimo.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+          '\$${fund.montoMinimo.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
           Icons.payments,
         ),
       ],

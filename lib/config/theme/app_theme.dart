@@ -118,7 +118,4 @@ class AppTheme {
     fontSize: 14,
     fontWeight: FontWeight.w400,
   );
-
-  static const double pagePadding = 16.0;
-  static const double itemSpacing = 8.0;
 }

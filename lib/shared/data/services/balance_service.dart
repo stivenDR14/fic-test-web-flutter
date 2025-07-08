@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../domain/entities/user_balance.dart';
+import '../../../core/utils/web_storage.dart';
 
 // Service to manage user balance in localStorage (web-compatible)
 class BalanceService {
@@ -8,22 +9,17 @@ class BalanceService {
   // Get user balance from localStorage
   Future<UserBalance> getBalance() async {
     try {
-      if (_isWeb()) {
-        final storage = await _getWebStorage();
-        final jsonString = storage[_storageKey];
-
-        if (jsonString == null) {
-          // Initialize with default balance if not exists
-          final initialBalance = UserBalance.initial();
-          await saveBalance(initialBalance);
-          return initialBalance;
-        }
-
-        final json = jsonDecode(jsonString);
-        return UserBalance.fromJson(json);
-      } else {
-        return UserBalance.initial();
+      final jsonMap = WebStorage.getItem<Map<String, dynamic>>(
+        _storageKey,
+        (json) => json as Map<String, dynamic>,
+      );
+      if (jsonMap == null) {
+        // Initialize with default balance if not exists
+        final initialBalance = UserBalance.initial();
+        await saveBalance(initialBalance);
+        return initialBalance;
       }
+      return UserBalance.fromJson(jsonMap);
     } catch (e) {
       // Return initial balance if there's an error
       return UserBalance.initial();
@@ -33,18 +29,13 @@ class BalanceService {
   // Save user balance to localStorage
   Future<void> saveBalance(UserBalance balance) async {
     try {
-      if (_isWeb()) {
-        final jsonString = jsonEncode(balance.toJson());
-        final storage = await _getWebStorage();
-        storage[_storageKey] = jsonString;
-      }
-      // For non-web platforms, do nothing
+      WebStorage.setItem(_storageKey, balance.toJson());
     } catch (e) {
       throw Exception('Failed to save balance: $e');
     }
   }
 
-  // Subscribe to a fund (decrease available balance, increase fund investment)
+  // Subscribe to a fund
   Future<UserBalance> subscribeToFund(String fundId, double amount) async {
     final currentBalance = await getBalance();
 
@@ -66,7 +57,7 @@ class BalanceService {
     return newBalance;
   }
 
-  // Cancel fund investment (increase available balance, decrease fund investment)
+  // Cancel fund investment
   Future<UserBalance> cancelFundInvestment(String fundId) async {
     final currentBalance = await getBalance();
     final investedAmount = currentBalance.getInvestmentAmount(fundId);
@@ -87,27 +78,5 @@ class BalanceService {
 
     await saveBalance(newBalance);
     return newBalance;
-  }
-
-  // Reset balance to initial state (for testing)
-  Future<void> resetBalance() async {
-    await saveBalance(UserBalance.initial());
-  }
-
-  // Check if running on web platform
-  bool _isWeb() {
-    try {
-      // This will throw on non-web platforms
-      return identical(0, 0.0) == false; // Always false, but checks web context
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Get web localStorage dynamically
-  Future<Map<String, String?>> _getWebStorage() async {
-    // This is a simplified mock for testing
-    // In real web environment, this would use html.window.localStorage
-    return <String, String?>{};
   }
 }

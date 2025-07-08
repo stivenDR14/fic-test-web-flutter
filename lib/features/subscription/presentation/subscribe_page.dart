@@ -116,27 +116,40 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
   }
 
   Widget _buildSubscriptionForm(List<Fund> funds) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildFundSelection(funds),
-              const SizedBox(height: 24),
-              _buildAmountInput(),
-              const SizedBox(height: 24),
-              _buildNotificationMethodSelection(),
-              const SizedBox(height: 32),
-              _buildActionButtons(),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate horizontal padding for desktop
+        final horizontalPadding =
+            constraints.maxWidth >= 768 ? constraints.maxWidth * 0.25 : 0.0;
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildFundSelection(funds),
+                    const SizedBox(height: 24),
+                    _buildAmountInput(),
+                    const SizedBox(height: 24),
+                    _buildNotificationMethodSelection(),
+                    const SizedBox(height: 32),
+                    _buildActionButtons(),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -209,7 +222,7 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Monto mínimo: COP \$${_selectedFund!.montoMinimo.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                    'Monto mínimo: \$${_selectedFund!.montoMinimo.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                     style: TextStyle(
                       fontSize: 13,
                       color: AppColors.primary,
@@ -262,7 +275,7 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
                   ) ??
                   0;
               if (amount < minAmount) {
-                return 'El monto mínimo es COP \$${_selectedFund!.montoMinimo}';
+                return 'El monto mínimo es \$${_selectedFund!.montoMinimo}';
               }
             }
 
