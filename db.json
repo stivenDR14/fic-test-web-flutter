@@ -1,0 +1,34 @@
+{
+  "funds": [
+    {
+      "id": 1,
+      "nombre": "FPV_BTG_PACTUAL_RECAUDADORA",
+      "monto_minimo": "COP $75.000",
+      "categoria": "FPV"
+    },
+    {
+      "id": 2,
+      "nombre": "FPV_BTG_PACTUAL_ECOPETROL",
+      "monto_minimo": "COP $125.000",
+      "categoria": "FPV"
+    },
+    {
+      "id": 3,
+      "nombre": "DEUDAPRIVADA",
+      "monto_minimo": "COP $50.000",
+      "categoria": "FIC"
+    },
+    {
+      "id": 4,
+      "nombre": "FDO-ACCIONES",
+      "monto_minimo": "COP $250.000",
+      "categoria": "FIC"
+    },
+    {
+      "id": 5,
+      "nombre": "FPV_BTG_PACTUAL_DINAMICA",
+      "monto_minimo": "COP $100.000",
+      "categoria": "FPV"
+    }
+  ]
+}
