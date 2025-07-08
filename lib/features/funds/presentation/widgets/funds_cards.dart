@@ -4,6 +4,8 @@ import '../../../../shared/domain/entities/fund.dart';
 import '../../../../shared/domain/entities/transaction.dart';
 import '../../../../shared/providers/balance_provider.dart';
 import '../../../../shared/providers/transaction_provider.dart';
+import '../../../../shared/providers/selected_fund_provider.dart';
+import '../../../../config/router/app_router.dart';
 import '../../../../shared/data/services/transaction_service.dart';
 import '../../../../config/theme/app_colors.dart';
 import '../../../../core/utils/helpers.dart';
@@ -213,7 +215,10 @@ class FundsCards extends ConsumerWidget {
         ],
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () => _navigateToSubscribe(context),
+            onPressed: () {
+              ref.read(selectedFundProvider.notifier).state = fund;
+              AppRouter.navigateToSubscribe();
+            },
             icon: const Icon(Icons.add_circle),
             label: Text(isInvested ? 'Agregar más' : 'Suscribirse'),
             style: ElevatedButton.styleFrom(

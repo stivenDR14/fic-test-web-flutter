@@ -12,6 +12,7 @@ import '../../../shared/data/services/transaction_service.dart';
 import '../../../features/funds/providers/fund_provider.dart';
 import '../../../config/theme/app_colors.dart';
 import '../../../core/utils/helpers.dart';
+import '../../../shared/providers/selected_fund_provider.dart';
 
 // Subscription page with fund selection and investment form
 class SubscribePage extends ConsumerStatefulWidget {
@@ -33,6 +34,18 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(fundProvider.notifier).loadFunds();
+      // Si hay un fondo seleccionado, lo asigna y limpia el provider
+      final selectedFund = ref.read(selectedFundProvider);
+      if (selectedFund != null) {
+        setState(() {
+          _selectedFund = selectedFund;
+          _amountController.text = selectedFund.montoMinimo.replaceAll(
+            RegExp(r'[^\d]'),
+            '',
+          );
+        });
+        ref.read(selectedFundProvider.notifier).state = null;
+      }
     });
   }
 
@@ -443,6 +456,7 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
   void _showSuccessDialog(Fund fund, double amount) {
     showDialog(
       context: context,
+      barrierDismissible: false, // Prevent closing by tapping outside
       builder:
           (context) => AlertDialog(
             title: const Text('¡Suscripción Exitosa!'),
@@ -453,7 +467,12 @@ class _SubscribePageState extends ConsumerState<SubscribePage> {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  // Close the dialog first
+                  Navigator.of(context).pop();
+                  // Navigate to home page using custom router
+                  AppRouter.navigateToMain();
+                },
                 child: const Text('OK'),
               ),
             ],
