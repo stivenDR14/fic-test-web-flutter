@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../features/funds/presentation/pages/main_page.dart';
+import '../../features/funds/presentation/pages/funds_page.dart';
 import '../../features/subscription/presentation/subscribe_page.dart';
 import '../../features/history/presentation/pages/history_page.dart';
 
@@ -40,7 +40,7 @@ class AppRouter extends RouterDelegate<AppRoute>
 
     switch (route) {
       case AppRoute.main:
-        page = const MainPage();
+        page = const FundsPage();
         name = '/';
         break;
       case AppRoute.subscribe:

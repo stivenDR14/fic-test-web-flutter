@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'config/di/locator.dart';
 import 'config/router/app_router.dart';
@@ -9,7 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await JsonReader.initialize();
   await initializeDependencies();
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

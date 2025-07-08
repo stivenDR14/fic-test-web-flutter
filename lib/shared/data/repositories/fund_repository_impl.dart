@@ -15,10 +15,4 @@ class FundRepositoryImpl implements FundRepository {
       throw Exception('Failed to load funds: $e');
     }
   }
-
-  @override
-  Future<List<Fund>> filterFundsByCategory(String category) async {
-    final funds = await getFunds();
-    return funds.where((fund) => fund.categoria == category).toList();
-  }
 }

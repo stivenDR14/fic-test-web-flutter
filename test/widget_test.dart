@@ -7,24 +7,34 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:fic_test_flutter/main.dart';
+import 'package:fic_test_flutter/core/widgets/app_layout.dart';
+import 'package:fic_test_flutter/config/router/app_router.dart';
+import 'package:fic_test_flutter/config/theme/app_theme.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('AppLayout renders correctly', (WidgetTester tester) async {
+    // Build a simple test with AppLayout
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: AppLayout(
+            currentRoute: AppRoute.main,
+            child: const Center(child: Text('Test Content')),
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the layout components are present
+    expect(find.text('Test Content'), findsOneWidget);
+    expect(find.byType(BottomNavigationBar), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify navigation items are present
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Subscribe'), findsOneWidget);
+    expect(find.text('History'), findsOneWidget);
   });
 }

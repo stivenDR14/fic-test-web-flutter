@@ -17,7 +17,7 @@ class FundRemoteDataSourceImpl implements FundRemoteDataSource {
       final response = await dio.get('/funds');
 
       if (response.statusCode == 200) {
-        final List<dynamic> fundsJson = response.data['funds'] ?? response.data;
+        final List<dynamic> fundsJson = response.data;
         return fundsJson.map((json) => Fund.fromJson(json)).toList();
       } else {
         throw Exception('Failed to load funds: ${response.statusCode}');
