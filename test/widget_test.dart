@@ -39,10 +39,10 @@ void main() {
         // Verify bottom navigation is present on mobile
         expect(find.byType(BottomNavigationBar), findsOneWidget);
 
-        // Verify navigation items are present
-        expect(find.text('Home'), findsOneWidget);
-        expect(find.text('Subscribe'), findsOneWidget);
-        expect(find.text('History'), findsOneWidget);
+        // Verify navigation items are present with Spanish text
+        expect(find.text('Inicio'), findsOneWidget);
+        expect(find.text('Nuevo fondo'), findsOneWidget);
+        expect(find.text('Historial'), findsOneWidget);
 
         // Reset surface size for other tests
         await tester.binding.setSurfaceSize(null);
@@ -73,10 +73,10 @@ void main() {
         // Verify app title is present in header
         expect(find.text('Gestor BTG'), findsOneWidget);
 
-        // Verify navigation items are present in header
-        expect(find.text('Home'), findsOneWidget);
-        expect(find.text('Subscribe'), findsOneWidget);
-        expect(find.text('History'), findsOneWidget);
+        // Verify navigation items are present in header with Spanish text
+        expect(find.text('Inicio'), findsOneWidget);
+        expect(find.text('Nuevo fondo'), findsOneWidget);
+        expect(find.text('Historial'), findsOneWidget);
 
         // Verify bottom navigation is NOT present on desktop
         expect(find.byType(BottomNavigationBar), findsNothing);

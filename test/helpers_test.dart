@@ -21,6 +21,15 @@ void main() {
 
         expect(result, equals(expected));
       });
+
+      test('should format date', () {
+        var input = DateTime(2025, 7, 8, 10, 0, 0);
+        const expected = 'Hace 7h.';
+
+        final result = AppHelpers.formatDate(input);
+
+        expect(result, equals(expected));
+      });
     });
   });
 }
